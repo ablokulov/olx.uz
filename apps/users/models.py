@@ -10,17 +10,22 @@ class CustomUserManager(UserManager):
             raise ValueError("telegram_id required")
         
         user = self.model(telegram_id=telegram_id,**extra_fields)
-        user.set_unasable_password()
+        user.set_unusable_password()
         user.save(using=self._db)
         return user
     
     
-    def create_superuser(self,telegram_id, **extra_fields):
+    def create_superuser(self, telegram_id, password=None, **extra_fields):
+
         extra_fields.setdefault("is_staff", True)
         extra_fields.setdefault("is_superuser", True)
-        
-        return self.create_user(telegram_id=telegram_id, **extra_fields)
-     
+
+        user = self.model(telegram_id=telegram_id, **extra_fields)
+
+        user.set_password(password)
+        user.save(using=self._db)
+
+        return user
 
 class CustomUser(AbstractUser):
     
@@ -30,7 +35,7 @@ class CustomUser(AbstractUser):
         CUSTOMER = "customer","Xaridor"
         SELLER = "seller", "Sotuvchi"
         
-    telegram_id = models.BigIntegerField(unique=True)
+    telegram_id = models.BigIntegerField(unique=True,db_index=True)
     telegram_username = models.CharField(max_length=150,blank=True, null=True)
     phone_number = models.CharField(max_length=20, blank=True)
     role = models.CharField(max_length=10,default=Role.CUSTOMER, choices=Role.choices)
