@@ -5,3 +5,5 @@ drf-spectacular
 python-decouple
 psycopg2-binary
 
+python-telegram-bot
+
