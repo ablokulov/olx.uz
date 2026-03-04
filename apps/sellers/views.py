@@ -25,7 +25,6 @@ class SellerDetailViews(generics.RetrieveAPIView):
     lookup_url_kwarg = 'seller_id'
     
  
-    
 class SellerDetailProductViews(APIView):
     permission_classes = [AllowAny]
     def get(self, request: Request, seller_id: int):

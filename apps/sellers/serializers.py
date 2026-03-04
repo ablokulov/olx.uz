@@ -2,7 +2,6 @@ from rest_framework import serializers
 
 from .models import SellerProfile
 
-
 class SellerDetailSerializer(serializers.ModelSerializer):
 
     telegram_username = serializers.CharField(source="user.telegram_username")
