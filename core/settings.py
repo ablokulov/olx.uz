@@ -28,6 +28,7 @@ INSTALLED_APPS = [
     
     'apps.users',
     'apps.sellers',
+    'apps.categories',
     
     'rest_framework',
     'drf_spectacular',

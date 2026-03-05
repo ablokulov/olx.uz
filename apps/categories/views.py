@@ -1,3 +1,18 @@
-from django.shortcuts import render
+from rest_framework.request import Request
+from rest_framework.response import Response
+from rest_framework.generics import ListAPIView,RetrieveAPIView
+from rest_framework.permissions import AllowAny
 
-# Create your views here.
+from .serializers import CategoriesListSerializer
+from .models import Category
+
+
+class CategoriesListViews(ListAPIView):
+    queryset = Category.objects.filter(parent__isnull=True, is_active=True).prefetch_related("children")
+    serializer_class = CategoriesListSerializer
+    permission_classes = [AllowAny]
+    
+class CategoriesDetailViews(RetrieveAPIView):
+    queryset = Category.objects.all()
+    pass
+    
