@@ -2,6 +2,7 @@ from datetime import timedelta
 from django.db import models
 from django.contrib.auth import get_user_model
 from django.utils import timezone
+from django.core.validators import MinValueValidator
 
 from ..categories.models import Category
 
@@ -19,7 +20,7 @@ class Product(models.Model):
         STATISFACTORY = 'qoniqarli', 'Qoniqarli'
     
     class Price_Type(models.TextChoices):
-        STRICT = 'qat\'iy', 'Qat\'iy'
+        STRICT = 'qatiy', 'Qatiy'
         AGREED = 'kelishiladi', 'Kelishiladi'
         FREE   = 'bepul', 'Bepul'
         EXCHANGE = 'ayirboshlash', 'Ayirboshlash'
@@ -37,7 +38,7 @@ class Product(models.Model):
     title = models.CharField(max_length=200)
     description = models.TextField()
     condition = models.CharField(max_length=30,choices=Condition.choices,default=Condition.GOOD)
-    price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True,validators=[MinValueValidator(0, message="Narx manfiy bo'lishi mumkin emas")])
     price_type = models.CharField(max_length=30,choices=Price_Type.choices,default=Price_Type.AGREED)
     region = models.CharField(max_length=100)
     district = models.CharField(max_length=100)
