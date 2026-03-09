@@ -1,5 +1,6 @@
 from datetime import timedelta
 
+
 from pathlib import Path
 from decouple import config, Csv
 
@@ -32,6 +33,7 @@ INSTALLED_APPS = [
     'apps.products',
     'apps.favorites',
     'apps.orders',
+    'apps.reviews',
     
     'rest_framework',
     'drf_spectacular',
@@ -39,6 +41,8 @@ INSTALLED_APPS = [
     
     "rest_framework_simplejwt.token_blacklist",
 ]
+
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -119,6 +123,7 @@ STATIC_URL = 'static/'
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
+
 
 AUTH_USER_MODEL = "users.CustomUser"
 
