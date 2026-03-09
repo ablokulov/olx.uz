@@ -1,45 +1,32 @@
-from rest_framework.generics import ListCreateAPIView, DestroyAPIView
-from rest_framework.permissions import IsAuthenticated
-from django.db.models import F
+from rest_framework.generics import ListCreateAPIView
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
-from .models import Favorite
-from .serializers import FavoriteSerializer
-from products.models import Product
+from .models import Review
+from .serializers import ReviewSerializer, ReviewCreateSerializer
 
 
-class FavoriteListCreateView(ListCreateAPIView):
+class ReviewListCreateView(ListCreateAPIView):
 
-    serializer_class = FavoriteSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticatedOrReadOnly]
 
     def get_queryset(self):
-        return Favorite.objects.filter(user=self.request.user)
 
-    def perform_create(self, serializer):
+        seller_id = self.request.query_params.get("seller_id")
 
-        product = serializer.validated_data["product"]
-
-        favorite = serializer.save(user=self.request.user)
-
-        Product.objects.filter(id=product.id).update(
-            favorite_count=F("favorite_count") + 1
+        queryset = Review.objects.select_related(
+            "order",
+            "reviewer",
+            "seller"
         )
-        
-class FavoriteDestroyView(DestroyAPIView):
 
-    serializer_class = FavoriteSerializer
-    permission_classes = [IsAuthenticated]
-    lookup_field = "id"
+        if seller_id:
+            queryset = queryset.filter(seller_id=seller_id)
 
-    def get_queryset(self):
-        return Favorite.objects.filter(user=self.request.user)
+        return queryset
 
-    def perform_destroy(self, instance):
+    def get_serializer_class(self):
 
-        product = instance.product
+        if self.request.method == "POST":
+            return ReviewCreateSerializer
 
-        instance.delete()
-
-        Product.objects.filter(id=product.id).update(
-            favorite_count=F("favorite_count") - 1
-        )
+        return ReviewSerializer
