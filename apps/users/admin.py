@@ -76,7 +76,24 @@ class CustomUserAdmin(UserAdmin):
             )
         }),
     )
-    
+
+    # MUHIM QISM
+    add_fieldsets = (
+        (None, {
+            "classes": ("wide",),
+            "fields": (
+                "telegram_id",
+                "telegram_username",
+                "phone_number",
+                "password1",
+                "password2",
+                "role",
+                "is_active",
+                "is_staff",
+            ),
+        }),
+    )
+
     def avatar_preview(self, obj):
         if obj.avatar:
             return format_html(

@@ -16,21 +16,26 @@ class UserTelegramloginViews(APIView):
     permission_classes = [AllowAny]
     
     def post(self,request:Request):
+        
+        print("RAW DATA:", request.data)
+        
         serializer = UserTelegramloginSerializer(data=request.data)
         
         serializer.is_valid(raise_exception=True)
         data = serializer.validated_data
             
         telegram_id = data["telegram_id"]
-        username    = data.get("username", "") or str(telegram_id)
+        telegram_username = data.get("username") or str(telegram_id)
         first_name  = data.get("first_name", "")
         last_name   = data.get("last_name", "")
-            
-            
+        
+        print(telegram_username)
+        
+        
         user, created = CustomUser.objects.get_or_create(
             telegram_id=telegram_id,
             defaults={
-                "telegram_username":username,
+                "telegram_username":telegram_username,
                 "first_name": first_name,
                 "last_name": last_name,
                 "role": CustomUser.Role.CUSTOMER
@@ -47,9 +52,11 @@ class UserTelegramloginViews(APIView):
       
       
 class UserLogoutViews(APIView):
+    
     permission_classes = [IsAuthenticated]
     
     def post(self,request:Request):
+        
         serializer = UserLogoutSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         
