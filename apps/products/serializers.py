@@ -2,7 +2,7 @@ from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
 from ..categories.models import Category
-from .models import Product
+from .models import Product,ProductImage
 
 CustomUser = get_user_model()
 
@@ -67,5 +67,27 @@ class ProductCreateSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError('Price manfiy bo\'lishi mumkin emas')
         
         return value
-                        
+
+
+
+class ProductImageSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = ProductImage
+        fields = [
+            "id",
+            "image",
+            "order",
+            "is_main",
+        ]
         
+    read_only_fields = ["id", "created_at"]
+    
+class ProductImageUpdateSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = ProductImage
+        fields = [
+            "order",
+            "is_main"
+        ]

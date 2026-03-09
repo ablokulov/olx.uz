@@ -4,17 +4,28 @@ from django.utils import timezone
 from django.db.models import F
 from django.shortcuts import get_object_or_404
 
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 from rest_framework.request import Request
 from rest_framework import status
 from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.views import APIView
-from rest_framework.generics import ListAPIView,RetrieveAPIView, CreateAPIView, UpdateAPIView, DestroyAPIView
+from rest_framework.generics import (
+    ListAPIView,
+    RetrieveAPIView, 
+    CreateAPIView, 
+    UpdateAPIView, 
+    DestroyAPIView,
+    ListCreateAPIView,
+    RetrieveUpdateDestroyAPIView
+    
+)
+
 from rest_framework.permissions import AllowAny,IsAuthenticated
 
 from ..users.permissions import Is_Seller
-from .serializers import ProductSerializer,ProductCreateSerializer
-from .models import Product
+from .serializers import ProductSerializer,ProductCreateSerializer,ProductImageSerializer,ProductImageUpdateSerializer
+from .models import Product, ProductImage
 
 
 from rest_framework.generics import ListAPIView
@@ -235,4 +246,40 @@ class ProductsSoldViews(APIView):
             status=status.HTTP_200_OK
         )
         
-    
+
+class ProductImageListCreateView(ListCreateAPIView):
+
+    serializer_class = ProductImageSerializer
+    permission_classes = [IsAuthenticated,Is_Seller]
+
+    def get_queryset(self):
+
+        product_id = self.kwargs.get("product_id")
+
+        return ProductImage.objects.filter(
+            product_id=product_id
+        ).order_by("order")
+
+    def perform_create(self, serializer):
+
+        product_id = self.kwargs.get("product_id")
+
+        product = Product.objects.get(id=product_id)
+
+        if product.seller != self.request.user:
+            raise PermissionDenied("Bu product sizga tegishli emas")
+
+        serializer.save(product=product)
+        
+        
+class ProductImageDetailView(RetrieveUpdateDestroyAPIView):
+
+    queryset = ProductImage.objects.all()
+    serializer_class = ProductImageUpdateSerializer
+    permission_classes = [IsAuthenticated,Is_Seller]
+    lookup_field = "id"
+
+    def get_object(self):
+        obj = super().get_object()
+
+        return obj
