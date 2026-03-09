@@ -1,7 +1,10 @@
+from django.utils import timezone
 
 from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.permissions import AllowAny
 
+from ..products.models import Product
+from ..products.serializers import ProductSerializer
 from .serializers import CategoriesListSerializer
 from .models import Category
 
@@ -20,6 +23,25 @@ class CategoriesDetailViews(RetrieveAPIView):
         
         
         
-class CategoriesDetailProducts(ListAPIView):
+class CategoryProductsListView(ListAPIView):
+
+    serializer_class = ProductSerializer
     permission_classes = [AllowAny]
+
+    def get_queryset(self):
+
+        slug = self.kwargs.get("slug")
+
+        queryset = Product.objects.filter(
+            category__slug=slug,
+            status=Product.Status.ACTIVE,
+            expires_at__gt=timezone.now()
+        ).select_related(
+            "category",
+            "seller"
+        ).prefetch_related(
+            "images"
+        )
+
+        return queryset
   
