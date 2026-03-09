@@ -35,3 +35,4 @@ class SellerDetailSerializer(serializers.ModelSerializer):
             "total_sales",
             "telegram_username",
         ]
+        

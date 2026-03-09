@@ -1,10 +1,12 @@
 from rest_framework.views import APIView
-from rest_framework import generics
+from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework import status
 
+from ..products.models import Product
+from ..products.serializers import ProductSerializer
 from .models import SellerProfile
 from .serializers import SellerProfileSerializer,SellerDetailSerializer
 from ..users.models import CustomUser
@@ -44,15 +46,38 @@ class SellerProfileView(APIView):
         )
         
         
-class SellerDetailViews(generics.RetrieveAPIView):
-    queryset = SellerProfile.objects.all()
+# class SellerDetailViews(RetrieveAPIView):
+#     queryset = SellerProfile.objects.all()
+#     serializer_class = SellerDetailSerializer
+#     permission_classes = [AllowAny]
+#     lookup_field = ''
+#     lookup_url_kwarg = 'seller_id'
+
+class SellerDetailViews(RetrieveAPIView):
+
     serializer_class = SellerDetailSerializer
     permission_classes = [AllowAny]
-    lookup_field = 'id'
-    lookup_url_kwarg = 'seller_id'
+    lookup_field = "id"
+    lookup_url_kwarg = "seller_id"
+
+    queryset = SellerProfile.objects.select_related("user")
     
  
-class SellerDetailProductViews(APIView):
+class SellerProductsListView(ListAPIView):
+
+    serializer_class = ProductSerializer
     permission_classes = [AllowAny]
-    def get(self, request: Request, seller_id: int):
-        pass
+
+    def get_queryset(self):
+
+        seller_id = self.kwargs.get("seller_id")
+
+        queryset = Product.objects.filter(
+            seller_id=seller_id,
+            status=Product.Status.ACTIVE
+        ).select_related(
+            "category",
+            "seller"
+        )
+
+        return queryset
