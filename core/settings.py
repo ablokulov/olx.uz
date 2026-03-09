@@ -31,6 +31,7 @@ INSTALLED_APPS = [
     'apps.categories',
     'apps.products',
     'apps.favorites',
+    'apps.orders',
     
     'rest_framework',
     'drf_spectacular',
