@@ -13,55 +13,75 @@ from rest_framework.generics import ListAPIView,RetrieveAPIView, CreateAPIView, 
 from rest_framework.permissions import AllowAny,IsAuthenticated
 
 from ..users.permissions import Is_Seller
-from .serializres import ProductSerializer,ProductCreateSerializer
+from .serializers import ProductSerializer,ProductCreateSerializer
 from .models import Product
 
 
+from rest_framework.generics import ListAPIView
+from rest_framework.permissions import AllowAny
+from rest_framework.filters import SearchFilter, OrderingFilter
+
+from .models import Product
+from .serializers import ProductSerializer
+
 
 class ProductsListViews(ListAPIView):
+    
     permission_classes = [AllowAny]
     serializer_class = ProductSerializer
-    
+
     filter_backends = [
         SearchFilter,
         OrderingFilter
     ]
-    
+
     search_fields = [
-        'title',
-        'description'
+        "title",
+        "description"
     ]
 
     ordering_fields = [
-        'price',
-        'created_at'
+        "price",
+        "created_at",
+        "view_count"
     ]
-    
-    
+
+    ordering = ["-created_at"]
+
+
     def get_queryset(self):
-        
-        queryset = Product.objects.all()
-        
+
+        queryset = Product.objects.filter(
+            status=Product.Status.ACTIVE
+        ).select_related("category", "seller")
+
+
         category = self.request.query_params.get("category")
-        title = self.request.query_params.get("title")
+        region = self.request.query_params.get("region")
         min_price = self.request.query_params.get("min_price")
         max_price = self.request.query_params.get("max_price")
-        
-        
-        if category:
-            queryset = queryset.filter(category__slug=category)
 
-        if title:
-            queryset = queryset.filter(title__icontains=title)
+
+        if category:
+            if category.isdigit():
+                queryset = queryset.filter(category_id=category)
+            else:
+                queryset = queryset.filter(category__slug=category)
+
+
+        if region:
+            queryset = queryset.filter(region__iexact=region)
+
 
         if min_price:
             queryset = queryset.filter(price__gte=min_price)
 
+
         if max_price:
             queryset = queryset.filter(price__lte=max_price)
 
+
         return queryset
- 
 
 class ProductsGetOneViews(RetrieveAPIView):
     
