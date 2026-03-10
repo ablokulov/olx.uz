@@ -6,15 +6,19 @@ from ..products.models import Product
 CustomUser = get_user_model()
 
 
-class Status(models.TextChoices):
-    WAITING = 'kutilyapti', 'Kutilyapti'
-    AGREED = 'kelishilgan', 'Kelishilgan'
-    PURCHASED = 'sotib olingan', 'Sotib olingan'
-    CANCELED = 'bekor qilingan', 'Bekor qilingan'
-    
+
     
 
 class Order(models.Model):
+    
+    class Status(models.TextChoices):
+        WAITING = 'kutilyapti', 'Kutilyapti'
+        AGREED = 'kelishilgan', 'Kelishilgan'
+        PURCHASED = 'sotib olingan', 'Sotib olingan'
+        CANCELED = 'bekor qilingan', 'Bekor qilingan'
+        
+        
+    
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='orders')
     buyer = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='orders_buyer')
     seller = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='orders_seller')
