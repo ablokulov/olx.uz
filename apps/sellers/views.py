@@ -4,6 +4,7 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework import status
+from drf_spectacular.utils import extend_schema, OpenApiResponse
 
 from ..products.models import Product
 from ..products.serializers import ProductSerializer
@@ -15,6 +16,13 @@ from ..users.models import CustomUser
 class SellerProfileView(APIView):
     
     permission_classes = [IsAuthenticated]
+
+    
+    @extend_schema(
+    request=SellerProfileSerializer,
+    responses={201: OpenApiResponse(description="Seller profile created")}
+)
+    
     
     def post(self, request: Request):
         
