@@ -45,20 +45,13 @@ class SellerProfileView(APIView):
             status=status.HTTP_201_CREATED
         )
         
-        
-# class SellerDetailViews(RetrieveAPIView):
-#     queryset = SellerProfile.objects.all()
-#     serializer_class = SellerDetailSerializer
-#     permission_classes = [AllowAny]
-#     lookup_field = ''
-#     lookup_url_kwarg = 'seller_id'
 
 class SellerDetailViews(RetrieveAPIView):
 
     serializer_class = SellerDetailSerializer
     permission_classes = [AllowAny]
     lookup_field = "id"
-    lookup_url_kwarg = "seller_id"
+    lookup_url_kwarg = "profile_id"
 
     queryset = SellerProfile.objects.select_related("user")
     
@@ -78,6 +71,10 @@ class SellerProductsListView(ListAPIView):
         ).select_related(
             "category",
             "seller"
+        ).prefetch_related(
+            "images"
         )
-
+        
         return queryset
+
+        
