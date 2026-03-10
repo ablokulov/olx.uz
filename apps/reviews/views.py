@@ -1,5 +1,5 @@
 from rest_framework.generics import ListCreateAPIView
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.permissions import IsAuthenticated
 
 from .models import Review
 from .serializers import ReviewSerializer, ReviewCreateSerializer
@@ -7,7 +7,7 @@ from .serializers import ReviewSerializer, ReviewCreateSerializer
 
 class ReviewListCreateView(ListCreateAPIView):
 
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
 
