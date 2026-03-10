@@ -10,9 +10,9 @@ from .views import (
     ProductsArchiveViews,
     ProductsSoldViews,
     ProductImageListCreateView,
-    ProductImageDetailView
+    ProductImageUpdateView,
+    ProductImageDeleteView
 )
-
 
 
 urlpatterns = [
@@ -24,6 +24,7 @@ urlpatterns = [
     path('products/<int:id>/publish/', ProductsPuplishViews.as_view(), name='product_publish'),
     path('products/<int:id>/archive/', ProductsArchiveViews.as_view(), name='product_archive'),
     path('products/<int:id>/sold/', ProductsSoldViews.as_view(), name='product_sold'),
-    path('products/<int:id>/images/', ProductImageListCreateView.as_view(), name='product-images' ),
-    path('product-images/<int:id>/', ProductImageDetailView.as_view()),
+    path("products/<int:product_id>/images/", ProductImageListCreateView.as_view()),
+    path("product-images/<int:id>/", ProductImageUpdateView.as_view()),
+    path("product-images/<int:id>/delete/", ProductImageDeleteView.as_view())
 ]

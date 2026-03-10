@@ -69,7 +69,6 @@ class ProductCreateSerializer(serializers.ModelSerializer):
         return value
 
 
-
 class ProductImageSerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -79,10 +78,14 @@ class ProductImageSerializer(serializers.ModelSerializer):
             "image",
             "order",
             "is_main",
+            "created_at",
+        ]
+        read_only_fields = [
+            "id",
+            "created_at",
         ]
         
-    read_only_fields = ["id", "created_at"]
-    
+        
 class ProductImageUpdateSerializer(serializers.ModelSerializer):
 
     class Meta:

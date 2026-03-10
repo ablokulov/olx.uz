@@ -250,13 +250,15 @@ class ProductsSoldViews(APIView):
 class ProductImageListCreateView(ListCreateAPIView):
 
     serializer_class = ProductImageSerializer
-    permission_classes = [IsAuthenticated,Is_Seller]
+    permission_classes = [IsAuthenticated, Is_Seller]
 
     def get_queryset(self):
 
         product_id = self.kwargs.get("product_id")
 
-        return ProductImage.objects.filter(
+        return ProductImage.objects.select_related(
+            "product"
+        ).filter(
             product_id=product_id
         ).order_by("order")
 
@@ -264,22 +266,56 @@ class ProductImageListCreateView(ListCreateAPIView):
 
         product_id = self.kwargs.get("product_id")
 
-        product = Product.objects.get(id=product_id)
+        product = get_object_or_404(Product, id=product_id)
 
         if product.seller != self.request.user:
             raise PermissionDenied("Bu product sizga tegishli emas")
 
+    
+        images_count = ProductImage.objects.filter(product=product).count()
+
+        if images_count >= 10:
+            raise PermissionDenied("Maksimal 10 ta rasm yuklash mumkin")
+
         serializer.save(product=product)
         
         
-class ProductImageDetailView(RetrieveUpdateDestroyAPIView):
+class ProductImageUpdateView(UpdateAPIView):
 
-    queryset = ProductImage.objects.all()
-    serializer_class = ProductImageUpdateSerializer
-    permission_classes = [IsAuthenticated,Is_Seller]
+    serializer_class = ProductImageSerializer
+    permission_classes = [IsAuthenticated, Is_Seller]
+    queryset = ProductImage.objects.select_related("product")
     lookup_field = "id"
 
-    def get_object(self):
-        obj = super().get_object()
+    def perform_update(self, serializer):
 
-        return obj
+        image = self.get_object()
+
+        if image.product.seller != self.request.user:
+            raise PermissionDenied("Bu rasm sizga tegishli emas")
+
+        is_main = serializer.validated_data.get("is_main")
+
+        if is_main:
+            ProductImage.objects.filter(
+                product=image.product,
+                is_main=True
+            ).exclude(id=image.id).update(is_main=False)
+
+        serializer.save()
+        
+        
+class ProductImageDeleteView(DestroyAPIView):
+
+    serializer_class = ProductImageSerializer
+    permission_classes = [IsAuthenticated, Is_Seller]
+    queryset = ProductImage.objects.select_related("product")
+    lookup_field = "id"
+
+    def perform_destroy(self, instance):
+
+        if instance.product.seller != self.request.user:
+            raise PermissionDenied("Bu rasm sizga tegishli emas")
+
+        instance.image.delete(save=False)  # media faylni o‘chirish
+        instance.delete()
