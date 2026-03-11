@@ -16,12 +16,13 @@ from rest_framework.generics import (
     CreateAPIView, 
     UpdateAPIView, 
     DestroyAPIView,
-    ListCreateAPIView,
-    RetrieveUpdateDestroyAPIView
+    ListCreateAPIView
     
 )
 
 from rest_framework.permissions import AllowAny,IsAuthenticated
+from drf_spectacular.utils import extend_schema,OpenApiParameter
+from drf_spectacular.types import OpenApiTypes
 
 from ..users.permissions import Is_Seller
 from .serializers import ProductSerializer,ProductCreateSerializer,ProductImageSerializer,ProductImageUpdateSerializer
@@ -34,6 +35,35 @@ from rest_framework.filters import SearchFilter, OrderingFilter
 
 from .models import Product
 from .serializers import ProductSerializer
+
+@extend_schema(
+    parameters=[
+        OpenApiParameter(
+            name="category",
+            description="Category ID yoki slug",
+            required=False,
+            type=OpenApiTypes.STR
+        ),
+        OpenApiParameter(
+            name="region",
+            description="Product region",
+            required=False,
+            type=OpenApiTypes.STR
+        ),
+        OpenApiParameter(
+            name="min_price",
+            description="Minimal price",
+            required=False,
+            type=OpenApiTypes.INT
+        ),
+        OpenApiParameter(
+            name="max_price",
+            description="Maximum price",
+            required=False,
+            type=OpenApiTypes.INT
+        ),
+    ]
+)
 
 
 class ProductsListViews(ListAPIView):
